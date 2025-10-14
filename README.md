@@ -163,15 +163,6 @@ php artisan config:clear
 
 ---
 
-## 🖼️ (Optional) Demo Preview
-
-যদি তুমি চাও, এখানে একটি স্ক্রিনশট বা GIF যুক্ত করতে পারো উদাহরণ হিসেবে:
-
-```markdown
-![Role Management Demo](public/demo/roles-module-preview.png)
-```
-
----
 
 ### ✨ Developer Note
 
