@@ -1,181 +1,189 @@
+Custom User Role & Permission Management Setup Guide (Laravel)
+এই ডকুমেন্টেশনটি ব্যাখ্যা করে যে কীভাবে কোনো থার্ড-পার্টি প্যাকেজ (যেমন Spatie) ব্যবহার না করে তৈরি করা একটি কাস্টম রোল এবং পারমিশন ম্যানেজমেন্ট মডিউল Laravel প্রজেক্টে ইন্টিগ্রেট করবেন।
 
-# Third-Party Enterprise Service Integration
+১. ফাইল কপি করুন (Copy Files)
+আপনার প্রজেক্টে নিম্নলিখিত ফাইল এবং ফোল্ডারগুলি তাদের নির্দিষ্ট পাথে কপি করুন:
 
-This is a **Laravel-based application** designed to integrate with a **third-party enterprise service (ServiceNow)** for seamless data synchronization.  
-The core functionalities include:  
-- User authentication via **Google OAuth**  
-- Ticket management in Laravel  
-- Two-way data syncing between the local database and **ServiceNow**  
+A. কনফিগারেশন এবং ডাটাবেস
+উৎস ফাইল
 
----
+গন্তব্য পাথ
 
-## Table of Contents
-1. [Project Requirements & Setup](#project-requirements--setup)  
-2. [User Authentication (Google OAuth)](#user-authentication-google-oauth)  
-3. [Third-Party Integration (ServiceNow)](#third-party-integration-servicenow)  
-4. [Testing & Verification](#testing--verification)  
-5. [Time Estimate](#time-estimate)  
+বর্ণনা
 
----
+[আপনার সোর্স]/config/app_permissions.php
 
-## 1. Project Requirements & Setup
+config/app_permissions.php
 
-This project was built using the following technologies. Please ensure they are installed on your system:
+অ্যাপ্লিকেশনের সমস্ত পারমিশনের তালিকা।
 
-- PHP >= 8.1  
-- Composer  
-- MySQL Database  
-- Node.js & NPM  
-- A **publicly accessible server** (e.g., cPanel, AWS, DigitalOcean) is required for webhook testing  
+[আপনার সোর্স]/database/migrations/*_role_user_role_tables.php
 
-### Setup Instructions
+database/migrations/
 
-Clone the repository:
+roles এবং role_user টেবিল তৈরির জন্য মাইগ্রেশন ফাইল।
 
-git clone https://github.com/moinulibr/laravel-ticket-sync-with-servicenow.git
+B. মডেলস এবং ট্রেইট
+উৎস ফাইল
 
+গন্তব্য পাথ
 
-Install dependencies:
+বর্ণনা
 
+[আপনার সোর্স]/app/Models/Role.php
 
-composer install
-npm install
+app/Models/Role.php
 
+রোল ডাটাবেস মডেল।
 
-Copy environment file:
+[আপনার সোর্স]/app/Traits/HasRolesAndPermissions.php
 
-```bash
-cp .env.example .env
-```
+app/Traits/HasRolesAndPermissions.php
 
-Generate application key:
+রোল ও পারমিশন লজিক ধারণকারী ট্রেইট।
 
-```bash
-php artisan key:generate
-```
+C. কন্ট্রোলার্স
+উৎস ফাইল
 
-Configure your `.env` with DB and external service credentials.
+গন্তব্য পাথ
 
-Run migrations:
+বর্ণনা
 
-```bash
-php artisan migrate
-```
+[আপনার সোর্স]/app/Http/Controllers/RoleController.php
 
-Start servers:
+app/Http/Controllers/RoleController.php
 
-```bash
-php artisan serve
-npm run dev
-```
+রোল এবং পারমিশন ম্যানেজমেন্ট।
 
----
+[আপনার সোর্স]/app/Http/Controllers/UserController.php
 
-## 2. User Authentication (Google OAuth)
+app/Http/Controllers/UserController.php
 
-This application uses **Google Sign-In** for authentication.
+ইউজার ম্যানেজমেন্ট।
 
-### Configuration Steps
+D. ভিউজ
+উৎস ফোল্ডার
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/).
-2. Create a new project and enable the **Google People API**.
-3. Go to **Credentials** → Create **OAuth 2.0 Client ID** (Web Application).
-4. Add your redirect URL:
+গন্তব্য পাথ
 
-   ```
-   https://your-domain.com/auth/google/callback
-   ```
-5. Copy **Client ID** and **Client Secret** into `.env`:
+বর্ণনা
 
-   ```env
-   GOOGLE_CLIENT_ID=your_client_id
-   GOOGLE_CLIENT_SECRET=your_client_secret
-   GOOGLE_REDIRECT_URI=https://your-domain.com/auth/google/callback
-   ```
+[আপনার সোর্স]/resources/views/admin/roles/
 
----
+resources/views/admin/roles/
 
-## 3. Third-Party Integration (ServiceNow)
+রোল সম্পর্কিত সমস্ত ভিউ (Index, Create, Edit, AJAX Modal)।
 
-The app integrates with a **ServiceNow Developer Instance** to synchronize ticket data.
+[আপনার সোর্স]/resources/views/admin/users/
 
-### ServiceNow API Credentials
+resources/views/admin/users/
 
-Add credentials to `.env`:
+ইউজার সম্পর্কিত সমস্ত ভিউ।
 
-```env
-SERVICE_NOW_URL=https://your-instance.service-now.com
-SERVICE_NOW_USERNAME=your_username
-SERVICE_NOW_PASSWORD=your_password
-```
+২. কোড ইন্টিগ্রেট করুন (Code Integration Steps)
+ধাপ ২.১: User মডেলে Trait যোগ করা
+app/Models/User.php ফাইলটি খুলুন এবং HasRolesAndPermissions ট্রেইটটি যোগ করুন:
 
-### Key Challenge: Webhook Limitations on Localhost
+// app/Models/User.php
 
-* Webhooks require **server-to-server communication**.
-* Localhost (`127.0.0.1`) is not accessible from the internet.
-* Tools like **ngrok** can be used but are unreliable (frequent URL changes).
-* Therefore, this project was deployed to a **live cPanel server** to ensure stable webhook communication.
+namespace App\Models;
 
----
+use App\Traits\HasRolesAndPermissions; // <--- এই লাইনটি যোগ করুন
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-### ServiceNow Configuration
+class User extends Authenticatable
+{
+    use HasFactory, HasRolesAndPermissions; // <--- এখানে ট্রেইটটি ব্যবহার করুন
+    // ...
+}
 
-#### 1. REST Message Setup
+ধাপ ২.২: রুট সেটআপ করা
+আপনার routes/web.php ফাইলটি খুলুন এবং অ্যাডমিন গ্রুপ বা যেখানে প্রয়োজন সেখানে নিম্নলিখিত রুটগুলি যোগ করুন:
 
-* Create new **REST Message** named `filerskeepers webhook`.
-* Endpoint URL:
+// routes/web.php
 
-  ```
-  https://your-domain.com/api/servicenow/webhook
-  ```
-* Create a **POST Method** under the REST Message.
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 
-#### 2. Business Rule Setup
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function () {
+    
+    // Role Management
+    Route::resource('roles', RoleController::class)->except(['show']);
+    Route::post('roles/{role}/sync-permissions', [RoleController::class, 'syncPermissions'])->name('roles.sync-permissions');
 
-* Table: `incident`
-* Condition: After **Update** where `State` changes
-* Advanced → Add Script:
+    // User Management
+    Route::resource('users', UserController::class);
+    // ...
+});
 
-```javascript
-(function executeRule(current, previous) {
-    try {
-        var r = new sn_ws.RESTMessageV2('filerskeepers webhook', 'post');
-        r.setRequestHeader('Content-Type', 'application/json');
-        r.setRequestBody(JSON.stringify({
-            'ticket_number': current.number.toString(),
-            'status': current.state.getDisplayValue(),
-            'sys_id': current.sys_id.toString()
-        }));
+ধাপ ২.৩: AuthServiceProvider এ Blade Directives যোগ করা
+app/Providers/AuthServiceProvider.php ফাইলটি খুলুন এবং boot মেথডের মধ্যে নিম্নলিখিত কাস্টম ব্লেড ডিরেক্টিভগুলি যোগ করুন:
 
-        var response = r.execute();
-        var httpStatus = response.getStatusCode();
-        gs.info("HTTP Status from Laravel: " + httpStatus);
-    } catch (ex) {
-        gs.log("Error in Business Rule: " + ex.getMessage());
+// app/Providers/AuthServiceProvider.php
+
+use Illuminate\Support\Facades\Blade;
+// ...
+
+public function boot()
+{
+    $this->registerPolicies();
+
+    // Custom Blade Directives
+    Blade::if('role', function ($role) {
+        return auth()->check() && auth()->user()->hasRole($role);
+    });
+
+    Blade::if('can', function ($permission) {
+        return auth()->check() && auth()->user()->can($permission);
+    });
+}
+
+৩. AJAX Modal ইন্টিগ্রেট করুন (Important)
+এই মডিউলটি সঠিকভাবে কাজ করার জন্য এর AJAX Modal এবং Content Loading লজিকটি আপনার গ্লোবাল লেআউট ফাইল (resources/views/layouts/app.blade.php) এ যোগ করা অপরিহার্য।
+
+resources/views/layouts/app.blade.php (ইন্টিগ্রেশন পয়েন্ট)
+১. <head> ট্যাগের মধ্যে Modal-এর স্টাইল যোগ করুন:
+
+<!-- HEAD ট্যাগের মধ্যে -->
+<head>
+    <!-- ... অন্যান্য CSS/স্ক্রিপ্টস ... -->
+    @include('admin.roles.modal_styles')
+    <!-- ... -->
+</head>
+
+২. <body> ট্যাগের শেষের দিকে Modal HTML, JavaScript লজিক এবং ইনিশিয়ালাইজেশন স্ক্রিপ্ট যোগ করুন:
+
+<!-- BODY ট্যাগের শেষে, </body> এর ঠিক আগে -->
+@include('admin.roles.modal_scripts')
+
+<script>
+    // AJAX Content Area কে টার্গেট করা
+    const mainContentArea = document.querySelector('main > div > div'); // আপনার কন্টেন্ট কন্টেইনারের সঠিক সিলেক্টর ব্যবহার করুন
+    
+    // নেভিগেশন লিঙ্কগুলিতে AJAX ক্লাস যোগ করা
+    document.querySelectorAll('nav a').forEach(link => {
+        if (link.href.includes('/admin/')) { // অ্যাডমিন রুটগুলি চেক করুন
+            link.classList.add('content-load-link');
+        }
+    });
+    
+    // AJAX লিসেনার ইনিশিয়ালাইজ করা
+    if (typeof attachAllListeners === 'function') {
+        attachAllListeners(mainContentArea);
     }
-})(current, previous);
-```
+</script>
+</body>
 
----
+৪. কমান্ড চালান (Run Commands)
+সব ফাইল কপি এবং কোড ইন্টিগ্রেট করার পর, নিম্নলিখিত কমান্ডগুলি চালান:
 
-## 4. Testing & Verification
+১. মাইগ্রেশন চালান:
 
-1. **Login** → Log in via Google Sign-In.
-2. **Create Ticket** → Add new ticket from dashboard.
-3. **Sync** → Click **Sync** (or **Sync All**) to push to ServiceNow.
-4. **Verify on ServiceNow** → Check new **Incident** in *All Incidents*.
-5. **Webhook Sync** → Change `State` in ServiceNow → Laravel updates automatically.
+php artisan migrate
 
----
+২. কনফিগারেশন ক্যাশে পরিষ্কার করুন:
 
-## 5. Time Estimate
+php artisan config:clear
 
-| Task                      | Hours       |
-| ------------------------- | ----------- |
-| Initial Setup & Auth      | \~3 hrs     |
-| Data Model & UI           | \~3 hrs     |
-| API Integration & Webhook | \~8 hrs     |
-| Refactoring & Testing     | \~2 hrs     |
-| **Total**                 | \~15–20 hrs |
-
----
+এখন আপনার কাস্টম User Role Management মডিউলটি সম্পূর্ণরূপে সেটআপ হয়ে গেছে এবং ব্যবহারের জন্য প্রস্তুত!
