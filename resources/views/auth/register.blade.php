@@ -1,52 +1,88 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+    <x-slot name="title">Sign Up | Admin</x-slot>
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+    <div class="card card-default mb-0">
+        <div class="card-header pb-0">
+            <div class="app-brand w-100 d-flex justify-content-center border-bottom-0">
+                <a class="w-auto pl-0" href="{{ route('dashboard') }}">
+                    <!-- Asset Path for Logo -->
+                    <img src="{{ asset('assets/admin/images/logo.png') }}" alt="Mono Logo">
+                    <span class="brand-name text-dark">MONO</span>
+                </a>
+            </div>
         </div>
+        <div class="card-body px-5 pb-5 pt-0">
+            <h4 class="text-dark mb-6 text-center">Create New Account</h4>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <!-- Validation Errors -->
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @foreach ($errors->all() as $error)
+                        <p class="mb-0">{{ $error }}</p>
+                    @endforeach
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('register') }}">
+                @csrf
+                <div class="row">
+                    
+                    <!-- Name Input Field -->
+                    <div class="form-group col-md-12 mb-4">
+                        <input type="text" class="form-control input-lg @error('name') is-invalid @enderror" 
+                               id="name" 
+                               name="name" 
+                               value="{{ old('name') }}"
+                               required autofocus
+                               autocomplete="name"
+                               placeholder="Full Name">
+                        <!-- Removed individual error message display as general $errors->any() block handles it -->
+                    </div>
+
+                    <!-- Email Input Field -->
+                    <div class="form-group col-md-12 mb-4">
+                        <input type="email" class="form-control input-lg @error('email') is-invalid @enderror" 
+                               id="email" 
+                               name="email" 
+                               value="{{ old('email') }}"
+                               required
+                               autocomplete="username"
+                               placeholder="Email">
+                    </div>
+
+                    <!-- Password Input Field -->
+                    <div class="form-group col-md-12 mb-4">
+                        <input type="password" class="form-control input-lg @error('password') is-invalid @enderror" 
+                               id="password" 
+                               name="password" 
+                               required
+                               autocomplete="new-password"
+                               placeholder="Password">
+                    </div>
+                    
+                    <!-- Confirm Password Input Field -->
+                    <div class="form-group col-md-12 mb-4">
+                        <input type="password" class="form-control input-lg @error('password_confirmation') is-invalid @enderror" 
+                               id="password_confirmation" 
+                               name="password_confirmation" 
+                               required
+                               autocomplete="new-password"
+                               placeholder="Confirm Password">
+                    </div>
+                    
+                    <div class="col-md-12">
+                        <!-- Register Button -->
+                        <button type="submit" class="btn btn-primary btn-pill mb-4 mt-3">Register</button>
+
+                        <p>Already have an account?
+                            <a class="text-blue" href="{{ route('login') }}">Log In</a>
+                        </p>
+                    </div>
+                </div>
+            </form>
         </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
+    </div>
 </x-guest-layout>

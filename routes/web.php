@@ -83,3 +83,13 @@ Route::middleware(['auth', 'permission:users.manage'])->prefix('admin')->name('a
 });
 
 require __DIR__.'/auth.php';
+
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->name('dashboard');
+
+// ব্ল্যাংক পেজ
+Route::get('/blank-page', function () {
+    return view('blank-page');
+})->name('blank');
