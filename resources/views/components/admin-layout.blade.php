@@ -50,9 +50,10 @@
                     </a>
                 </div>
                 <!-- Sidebar Menu: Named Slot ($sidebar) -->
-                <div class="sidebar-left" data-simplebar style="height: 100%;">
-                    {{ $sidebar }} 
-                </div>
+                {{-- <div class="sidebar-left" data-simplebar style="height: 100%;">
+                    {{ $sidebar }}
+                </div> --}}
+                @include('layouts.sidebar')
                 <!-- Sidebar Footer -->
                 <div class="sidebar-footer">
                     <div class="sidebar-footer-content">
@@ -74,13 +75,12 @@
                     <button id="sidebar-toggler" class="sidebar-toggle">
                         <span class="sr-only">Toggle navigation</span>
                     </button>
-                    <span class="page-title">{{ $header_title ?? 'ড্যাশবোর্ড' }}</span>
+                    <span class="page-title">{{ $header_title ?? 'Dashboard' }}</span>
                     <div class="navbar-right">
-                        {{ $navbar_right ?? '' }}
+                        {{-- {{ $navbar_right ?? '' }} --}}
+                        @include('layouts.navigation')
                     </div>
 
-                    @include('layouts.navigation')
-                    
                 </nav>
             </header>
 
@@ -108,8 +108,7 @@
     @include('layouts.contact')
 
     <!-- CORE JAVASCRIPT FILES (যা সব পেজে লাগবে) -->
-    {{-- <script src="{{ asset('assets/admin/plugins/jquery/jquery.min.js') }}"></script> --}}
-    <script src="{{ asset('assets/admin') }}/plugins/jquery/jquery.min.js"></script>
+    <script src="{{ asset('assets/admin/plugins/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/admin/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/admin/plugins/simplebar/simplebar.min.js') }}"></script>
     <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
