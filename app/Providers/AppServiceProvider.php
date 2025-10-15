@@ -5,6 +5,8 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use App\Http\Middleware\AuthorizePermission;
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
+use Illuminate\Support\Facades\View;
+use App\View\Composers\SidebarComposer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // এখানে View Composer রেজিস্ট্রেশন করা হচ্ছে
+        // 'layouts.sidebar-item' ভিউটি রেন্ডার হওয়ার আগে SidebarComposer ক্লাসটি রান হবে।
+        View::composer('layouts.sidebar-item', SidebarComposer::class);
+
         $router = $this->app->make(Router::class);
         $router->aliasMiddleware('permission', AuthorizePermission::class);
     }
