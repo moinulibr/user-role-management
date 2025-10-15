@@ -78,6 +78,9 @@
                     <div class="navbar-right">
                         {{ $navbar_right ?? '' }}
                     </div>
+
+                    @include('layouts.navigation')
+                    
                 </nav>
             </header>
 
@@ -101,6 +104,8 @@
             </footer>
         </div>
     </div>
+
+    @include('layouts.contact')
 
     <!-- CORE JAVASCRIPT FILES (যা সব পেজে লাগবে) -->
     {{-- <script src="{{ asset('assets/admin/plugins/jquery/jquery.min.js') }}"></script> --}}

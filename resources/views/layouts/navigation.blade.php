@@ -1,100 +1,169 @@
-<nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                    </a>
-                </div>
+<div class="navbar-right">
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+    <!-- search form -->
+    <div class="search-form">
+        <!-- Search form can be left static or you can define a search route -->
+        <form action="#" method="get"> 
+            <div class="input-group input-group-sm" id="input-group-search">
+                <input type="text" autocomplete="off" name="query" id="search-input" class="form-control" placeholder="Search..." />
+                <div class="input-group-append">
+                    <button class="btn" type="button">/</button>
                 </div>
             </div>
+        </form>
+        <!-- Search Dropdown - keeping content static as the links are non-functional -->
+        <ul class="dropdown-menu dropdown-menu-search">
+            <li class="nav-item"><a class="nav-link" href="#">Morbi leo risus</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Dapibus ac facilisis in</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Porta ac consectetur ac</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Vestibulum at eros</a></li>
+        </ul>
+    </div>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
+    <ul class="nav navbar-nav">
+        <!-- Offcanvas Toggler for Contacts/Sidebar -->
+        <li class="custom-dropdown">
+            <a class="offcanvas-toggler active custom-dropdown-toggler" data-offcanvas="contact-off" href="javascript:">
+                <i class="mdi mdi-contacts icon"></i>
+            </a>
+        </li>
+        
+        <!-- Notification Dropdown -->
+        <li class="custom-dropdown">
+            <button class="notify-toggler custom-dropdown-toggler">
+                <i class="mdi mdi-bell-outline icon"></i>
+                <!-- Badge for dynamic notification count -->
+                <span class="badge badge-xs rounded-circle">{{-- Notification Count Variable Here --}}</span> 
+            </button>
+            <div class="dropdown-notify">
 
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
+                <header>
+                    <div class="nav nav-underline" id="nav-tab" role="tablist">
+                        <a class="nav-item nav-link active" id="all-tabs" data-toggle="tab" href="#all" role="tab" aria-controls="nav-home" aria-selected="true">All (5)</a>
+                        <a class="nav-item nav-link" id="message-tab" data-toggle="tab" href="#message" role="tab" aria-controls="nav-profile" aria-selected="false">Msgs (4)</a>
+                        <a class="nav-item nav-link" id="other-tab" data-toggle="tab" href="#other" role="tab" aria-controls="nav-contact" aria-selected="false">Others (3)</a>
+                    </div>
+                </header>
+
+                <div class="" data-simplebar style="height: 325px;">
+                    <div class="tab-content" id="myTabContent">
+                        <!-- All Tab Content - Static for this example -->
+                        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tabs">
+                            <!-- Example Notification Item (Dynamic Image Path) -->
+                            <div class="media media-sm bg-warning-10 p-4 mb-0">
+                                <div class="media-sm-wrapper">
+                                    <a href="#">
+                                        <img src="{{ asset('assets/admin/images/user/user-sm-02.jpg') }}" alt="User Image">
+                                    </a>
+                                </div>
+                                <div class="media-body">
+                                    <a href="#">
+                                        <span class="title mb-0">John Doe</span>
+                                        <span class="discribe">Extremity sweetness difficult behaviour he of. On disposal of as landlord horrible.</span>
+                                        <span class="time"><time>Just now</time>...</span>
+                                    </a>
+                                </div>
                             </div>
-                        </button>
-                    </x-slot>
+                            <!-- More static notification items... -->
+                            <!-- Note: The links inside the media-body now use "#" as a placeholder -->
+                            <div class="media media-sm p-4 bg-light mb-0">
+                                <div class="media-sm-wrapper bg-primary"><a href="#"><i class="mdi mdi-calendar-check-outline"></i></a></div>
+                                <div class="media-body"><a href="#"><span class="title mb-0">New event added</span><span class="discribe">1/3/2014 (1pm - 2pm)</span><span class="time"><time>10 min ago...</time>...</span></a></div>
+                            </div>
+                            <div class="media media-sm p-4 mb-0">
+                                <div class="media-sm-wrapper"><a href="#"><img src="{{ asset('assets/admin/images/user/user-sm-03.jpg') }}" alt="User Image"></a></div>
+                                <div class="media-body"><a href="#"><span class="title mb-0">Sagge Hudson</span><span class="discribe">On disposal of as landlord Afraid at highly months do things on at.</span><span class="time"><time>1 hrs ago</time>...</span></a></div>
+                            </div>
+                            <div class="media media-sm p-4 mb-0">
+                                <div class="media-sm-wrapper bg-info-dark"><a href="#"><i class="mdi mdi-account-multiple-check"></i></a></div>
+                                <div class="media-body"><a href="#"><span class="title mb-0">Add request</span><span class="discribe">Add Dany Jones as your contact.</span><div class="buttons"><a href="#" class="btn btn-sm btn-success shadow-none text-white">accept</a><a href="#" class="btn btn-sm shadow-none">delete</a></div><span class="time"><time>6 hrs ago</time>...</span></a></div>
+                            </div>
+                            <div class="media media-sm p-4 mb-0">
+                                <div class="media-sm-wrapper bg-info"><a href="#"><i class="mdi mdi-playlist-check"></i></a></div>
+                                <div class="media-body"><a href="#"><span class="title mb-0">Task complete</span><span class="discribe">Afraid at highly months do things on at.</span><span class="time"><time>1 hrs ago</time>...</span></a></div>
+                            </div>
+                        </div>
 
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
+                        <!-- Message Tab Content - Static for this example -->
+                        <div class="tab-pane fade" id="message" role="tabpanel" aria-labelledby="message-tab">
+                            <div class="media media-sm p-4 mb-0">
+                                <div class="media-sm-wrapper"><a href="#"><img src="{{ asset('assets/admin/images/user/user-sm-01.jpg') }}" alt="User Image"></a></div>
+                                <div class="media-body"><a href="#"><span class="title mb-0">Selena Wagner</span><span class="discribe">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</span><span class="time"><time>15 min ago</time>...</span></a></div>
+                            </div>
+                            <div class="media media-sm p-4 mb-0">
+                                <div class="media-sm-wrapper"><a href="#"><img src="{{ asset('assets/admin/images/user/user-sm-03.jpg') }}" alt="User Image"></a></div>
+                                <div class="media-body"><a href="#"><span class="title mb-0">Sagge Hudson</span><span class="discribe">On disposal of as landlord Afraid at highly months do things on at.</span><span class="time"><time>1 hrs ago</time>...</span></a></div>
+                            </div>
+                            <div class="media media-sm bg-warning-10 p-4 mb-0">
+                                <div class="media-sm-wrapper"><a href="#"><img src="{{ asset('assets/admin/images/user/user-sm-02.jpg') }}" alt="User Image"></a></div>
+                                <div class="media-body"><a href="#"><span class="title mb-0">John Doe</span><span class="discribe">Extremity sweetness difficult behaviour he of. On disposal of as landlord horrible. Afraid at highly months do things on at.</span><span class="time"><time>Just now</time>...</span></a></div>
+                            </div>
+                            <div class="media media-sm p-4 mb-0">
+                                <div class="media-sm-wrapper"><a href="#"><img src="{{ asset('assets/admin/images/user/user-sm-04.jpg') }}" alt="User Image"></a></div>
+                                <div class="media-body"><a href="#"><span class="title mb-0">Albrecht Straub</span><span class="discribe"> Beatae quia natus assumenda laboriosam, nisi perferendis aliquid consectetur expedita non tenetur.</span><span class="time"><time>Just now</time>...</span></a></div>
+                            </div>
+                        </div>
 
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
+                        <!-- Other Tab Content - Static for this example -->
+                        <div class="tab-pane fade" id="other" role="tabpanel" aria-labelledby="contact-tab">
+                            <div class="media media-sm p-4 bg-light mb-0">
+                                <div class="media-sm-wrapper bg-primary"><a href="#"><i class="mdi mdi-calendar-check-outline"></i></a></div>
+                                <div class="media-body"><a href="#"><span class="title mb-0">New event added</span><span class="discribe">1/3/2014 (1pm - 2pm)</span><span class="time"><time>10 min ago...</time>...</span></a></div>
+                            </div>
+                            <div class="media media-sm p-4 mb-0">
+                                <div class="media-sm-wrapper bg-info-dark"><a href="#"><i class="mdi mdi-account-multiple-check"></i></a></div>
+                                <div class="media-body"><a href="#"><span class="title mb-0">Add request</span><span class="discribe">Add Dany Jones as your contact.</span><div class="buttons"><a href="#" class="btn btn-sm btn-success shadow-none text-white">accept</a><a href="#" class="btn btn-sm shadow-none">delete</a></div><span class="time"><time>6 hrs ago</time>...</span></a></div>
+                            </div>
+                            <div class="media media-sm p-4 mb-0">
+                                <div class="media-sm-wrapper bg-info"><a href="#"><i class="mdi mdi-playlist-check"></i></a></div>
+                                <div class="media-body"><a href="#"><span class="title mb-0">Task complete</span><span class="discribe">Afraid at highly months do things on at.</span><span class="time"><time>1 hrs ago</time>...</span></a></div>
+                            </div>
+                        </div>
 
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
+                    </div>
+                </div>
+
+                <footer class="border-top dropdown-notify-footer">
+                    <div class="d-flex justify-content-between align-items-center py-2 px-4">
+                        <span>Last updated 3 min ago</span>
+                        <a id="refress-button" href="javascript:" class="btn mdi mdi-cached btn-refress"></a>
+                    </div>
+                </footer>
+
             </div>
+        </li>
+        
+        <!-- User Account Dropdown -->
+        @auth
+        <li class="dropdown user-menu">
+            <button class="dropdown-toggle nav-link" data-toggle="dropdown">
+                <img src="{{ asset('assets/admin/images/user/user-xs-01.jpg') }}" class="user-image rounded-circle" alt="User Image" />
+                <span class="d-none d-lg-inline-block">{{ Auth::user()->name }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li>
+                    <!-- Assuming you have a 'profile.edit' route for user profile -->
+                    <a class="dropdown-link-item" href="{{ route('profile.edit') }}">
+                        <i class="mdi mdi-account-outline"></i>
+                        <span class="nav-text">My Profile</span>
+                    </a>
+                </li>
+                <li><a class="dropdown-link-item" href="#"><i class="mdi mdi-email-outline"></i><span class="nav-text">Message</span><span class="badge badge-pill badge-primary">24</span></a></li>
+                <li><a class="dropdown-link-item" href="#"><i class="mdi mdi-diamond-stone"></i><span class="nav-text">Activities</span></a></li>
+                <li><a class="dropdown-link-item" href="#"><i class="mdi mdi-settings"></i><span class="nav-text">Account Setting</span></a></li>
 
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-        </div>
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
-
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </form>
-            </div>
-        </div>
-    </div>
-</nav>
+                <li class="dropdown-footer">
+                    <!-- Logout Implementation for Laravel -->
+                    <form method="POST" action="{{ route('logout') }}" id="logout-form-desktop" style="display: none;">
+                        @csrf
+                    </form>
+                    <a class="dropdown-link-item" href="#" 
+                       onclick="event.preventDefault(); document.getElementById('logout-form-desktop').submit();"> 
+                        <i class="mdi mdi-logout"></i> Log Out 
+                    </a>
+                </li>
+            </ul>
+        </li>
+        @endauth
+    </ul>
+</div>
