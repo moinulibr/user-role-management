@@ -11,7 +11,6 @@
     <link href="https://fonts.googleapis.com/css?family=Karla:400,700|Roboto" rel="stylesheet">
     
     <!-- CORE CSS FILES -->
-    <!-- asset path:-public/assets/admin/plugins/... -->
     <link href="{{ asset('assets/admin/plugins/material/css/materialdesignicons.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/admin/plugins/simplebar/simplebar.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/admin/plugins/nprogress/nprogress.css') }}" rel="stylesheet" />
@@ -49,20 +48,22 @@
                         <span class="brand-name">{{ config('app.name', 'ADMIN') }}</span>
                     </a>
                 </div>
-                
-                <!-- Sidebar Menu -->
-                @include('layouts.sidebar')
-                
+                <!-- Sidebar Menu: এখন কম্পোনেন্ট কল করা হলো -->
+                <div class="sidebar-left" data-simplebar style="height: 100%;">
+                    {{-- সাইডবার কম্পোনেন্টকে কল করা হলো --}}
+                    {{-- মনে রাখবেন: $menuItems ডেটাটি অবশ্যই কোনো View Composer অথবা মূল View থেকে পাস করতে হবে --}}
+                    <x-sidebar :menuItems="$menuItems ?? []" />
+                </div>
                 <!-- Sidebar Footer -->
                 <div class="sidebar-footer">
                     <div class="sidebar-footer-content">
                         <ul class="d-flex">
                             <li><a href="#" data-toggle="tooltip" title="Profile settings"><i class="mdi mdi-settings"></i></a></li>
                             <li>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                <form method="POST" action="{{ route('logout') }}" id="logout-form-sidebar" style="display: none;">
                                     @csrf
                                 </form>
-                                <a href="#" data-toggle="tooltip" title="Logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <a href="#" data-toggle="tooltip" title="Logout" onclick="event.preventDefault(); document.getElementById('logout-form-sidebar').submit();">
                                     <i class="mdi mdi-logout"></i>
                                 </a>
                             </li>
@@ -81,21 +82,24 @@
                     <button id="sidebar-toggler" class="sidebar-toggle">
                         <span class="sr-only">Toggle navigation</span>
                     </button>
-                    <span class="page-title">{{ $page_title ?? 'Dashboard' }}</span>
+                    <span class="page-title">{{ $header_title ?? 'Dashboard' }}</span>
                     <div class="navbar-right">
-                        @include('layouts.navigation')
+                        {{-- নেভিগেশন কম্পোনেন্টকে কল করা হলো --}}
+                        <x-navigation />
                     </div>
+
                 </nav>
             </header>
 
             <!-- ==================================== CONTENT WRAPPER (MAIN CONTENT) ===================================== -->
             <div class="content-wrapper">
                 <div class="content">
-                    {{ $slot }}
+                    {{ $slot }} <!-- Default Slot -->
                 </div>
             </div>
 
             <!-- Footer -->
+            {{-- ... Footer অংশ অপরিবর্তিত ... --}}
             <footer class="footer mt-auto">
                 <div class="copyright bg-white">
                     <p>
@@ -111,7 +115,7 @@
 
     @include('layouts.contact')
 
-    <!-- CORE JAVASCRIPT FILES ( -->
+    <!-- CORE JAVASCRIPT FILES -->
     <script src="{{ asset('assets/admin/plugins/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/admin/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/admin/plugins/simplebar/simplebar.min.js') }}"></script>
@@ -120,7 +124,7 @@
     <script src="{{ asset('assets/admin/js/mono.js') }}"></script>
     <script src="{{ asset('assets/admin/js/custom.js') }}"></script>
 
-    <!-- **JS PUSH LOCATION**: -->
+    <!-- **JS PUSH LOCATION** -->
     @stack('script')
     
 </body>

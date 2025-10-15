@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // এখানে View Composer রেজিস্ট্রেশন করা হচ্ছে
         // 'layouts.sidebar-item' ভিউটি রেন্ডার হওয়ার আগে SidebarComposer ক্লাসটি রান হবে।
-        View::composer('layouts.sidebar-item', SidebarComposer::class);
+        View::composer('layouts.sidebar', SidebarComposer::class);
 
         $router = $this->app->make(Router::class);
         $router->aliasMiddleware('permission', AuthorizePermission::class);

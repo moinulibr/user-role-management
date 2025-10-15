@@ -1,31 +1,14 @@
 <x-admin-layout>
-    
-    {{-- 1. পেজের টাইটেল পরিবর্তন করুন --}}
-    <x-slot name="header_title">
-        নতুন পেজের টাইটেল
+  
+    {{-- পেজের টাইটেল (header নামে Named Slot) --}}
+    <x-slot name="page_title">
+        Blank Page - page title
     </x-slot>
 
-    {{-- 2. সাইডবারের কন্টেন্ট আপডেট করুন (সক্রিয় মেনু আইটেম পরিবর্তনের জন্য) --}}
-    <x-slot name="sidebar">
-        <ul class="nav sidebar-inner" id="sidebar-menu">
-            <li class="">
-                <a class="sidenav-item-link" href="{{ route('dashboard') }}">
-                    <i class="mdi mdi-briefcase-account-outline"></i>
-                    <span class="nav-text">ড্যাশবোর্ড</span>
-                </a>
-            </li>
-            <li class="active">
-                <a class="sidenav-item-link" href="#">
-                    <i class="mdi mdi-square-outline"></i>
-                    <span class="nav-text">নতুন পেজ</span>
-                </a>
-            </li>
-            {{-- অন্যান্য মেনু আইটেম --}}
-        </ul>
-    </x-slot>
-    
-    {{-- 3. মূল কন্টেন্ট: এখানে আপনার পেজের HTML/ফর্ম/টেবিল বসবে --}}
-    
+
+
+    {{-- মূল কন্টেন্ট ($slot) --}}
+
     <div class="row">
         <div class="col-12">
             <div class="card card-default">
@@ -40,13 +23,21 @@
         </div>
     </div>
     
-    {{-- 4. যদি এই পেজে কোনো অতিরিক্ত CSS বা JS লাগে, তবে এখানে push করুন --}}
+    {{-- মূল কন্টেন্ট ($slot) --}}
+
+    
     @push('css')
-        {{-- উদাহরণ: <link href="{{ asset('assets/admin/plugins/DataTables/...') }}" rel="stylesheet" /> --}}
+        <!-- Primary Theme CSS (Dashboard-এর বিশেষ স্টাইল) -->
     @endpush
     
     @push('script')
-        {{-- উদাহরণ: <script src="{{ asset('assets/admin/plugins/DataTables/...') }}"></script> --}}
+        <!-- Core & Utility JS -->
+
+        <!-- Charting Library (আপনার কোডে spline-area, mixed-chart থাকার জন্য এটি জরুরি) -->
+        <script src="{{asset('assets/admin/plugins/apexcharts/apexcharts.min.js')}}"></script>
+
+        <!-- Template Specific JS (যেমন অফক্যানভাস, ড্রপডাউন এবং অন্যান্য UI ফাংশনালিটির জন্য) -->
+        <script src="{{ asset('assets/admin/js/chart.js') }}"></script>
     @endpush
     
 </x-admin-layout>

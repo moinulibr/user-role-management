@@ -8,57 +8,61 @@ use Illuminate\Support\Facades\Auth;
 class SidebarComposer
 {
     /**
-     * View Composer-এর মূল মেথড
-     * এটি ভিউ রেন্ডার হওয়ার আগে ডেটা সরবরাহ করে।
-     * * @param  \Illuminate\View\View  $view
+     * মেনু ডেটা লোড এবং ব্যবহারকারীর পারমিশন অনুযায়ী ফিল্টার করে।
+     * @param  \Illuminate\View\View  $view
      * @return void
      */
     public function compose(View $view)
     {
-        // ১. ব্যবহারকারী লগইন করা আছে কিনা চেক করুন
         $user = Auth::user();
+
+        // ১. যদি ইউজার অথেন্টিকেটেড না থাকে, খালি মেনু পাস করুন
         if (!$user) {
-            // যদি কেউ লগইন না করে থাকে, তবে কোনো মেনু দেখানোর দরকার নেই (বা শুধু পাবলিক মেনু দেখান)
-            $view->with('items', []);
+            $view->with('menuItems', []);
             return;
         }
 
-        // ২. কনফিগারেশন থেকে মেনু ডেটা লোড করুন
-        $menuItems = config('sidebar');
-        $filteredItems = [];
+        // config('sidebar') ফাইল থেকে ডেটা লোড করুন
+        $menuConfig = config('sidebar');
+        $filteredMenu = [];
 
-        // ৩. মেনু আইটেমগুলো লুপ করুন এবং পারমিশন অনুযায়ী ফিল্টার করুন
-        foreach ($menuItems as $item) {
-            // সেকশন (Section) আইটেম
-            if (isset($item['section'])) {
-                $sectionItems = [];
-                // সেকশনের ভেতরের আইটেমগুলো ফিল্টার করুন
-                foreach ($item['items'] as $subItem) {
-                    $permission = $subItem['permission'] ?? null;
+        foreach ($menuConfig as $item) {
+            $mainPermission = $item['permission'] ?? null;
+            $canSeeMainItem = true;
 
-                    // যদি কোনো পারমিশন সেট করা না থাকে OR যদি ব্যবহারকারীর সেই পারমিশন থাকে
-                    if (!$permission || $user->can($permission)) {
-                        $sectionItems[] = $subItem;
+            // প্রধান আইটেমের পারমিশন চেক করুন
+            if ($mainPermission && !$user->can($mainPermission)) {
+                $canSeeMainItem = false;
+            }
+
+            // ২. সাবমেনু হ্যান্ডেল করুন
+            if (isset($item['submenu'])) {
+                $filteredSubmenu = [];
+
+                // সাবমেনুর প্রতিটি আইটেম ফিল্টার করুন
+                foreach ($item['submenu'] as $subItem) {
+                    $subPermission = $subItem['permission'] ?? null;
+
+                    if (!$subPermission || $user->can($subPermission)) {
+                        $filteredSubmenu[] = $subItem;
                     }
                 }
 
-                // যদি সেকশনের ভেতরে একটিও আইটেম থাকে, তবে সেকশন হেডার সহ যোগ করুন
-                if (!empty($sectionItems)) {
-                    $item['items'] = $sectionItems;
-                    $filteredItems[] = $item;
-                }
-            } else {
-                // রেগুলার আইটেম
-                $permission = $item['permission'] ?? null;
+                $item['submenu'] = $filteredSubmenu;
 
-                // যদি কোনো পারমিশন সেট করা না থাকে OR যদি ব্যবহারকারীর সেই পারমিশন থাকে
-                if (!$permission || $user->can($permission)) {
-                    $filteredItems[] = $item;
+                // যদি সাবমেনুতে অন্তত একটি আইটেম থাকে, তবে প্রধান মেনুটি দেখান
+                if (!empty($item['submenu'])) {
+                    $filteredMenu[] = $item;
+                    continue; // পরের আইটেমে যান
                 }
+            }
+
+            // ৩. যদি সিঙ্গেল আইটেম হয় এবং পারমিশন থাকে, তবে যোগ করুন
+            if ($canSeeMainItem && !isset($item['submenu'])) {
+                $filteredMenu[] = $item;
             }
         }
 
-        // ৪. ফিল্টার করা মেনু অ্যারেটি Blade ফাইলের জন্য 'items' নামে পাস করুন
-        $view->with('items', $filteredItems);
+        $view->with('menuItems', $filteredMenu);
     }
 }

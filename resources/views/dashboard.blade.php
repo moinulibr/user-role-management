@@ -6,15 +6,6 @@
         Dashboard
     </x-slot>
 
-    {{-- সাইডবারের কন্টেন্ট (sidebar নামে Named Slot) --}}
-    <x-slot name="sidebar">
-        <h2 class="text-white text-xl font-bold mb-6">Sidebar Admin</h2>
-        <nav class="space-y-2">
-            <a href="#" class="block px-3 py-2 rounded-md text-white bg-gray-900">Dashboard</a>
-            <a href="{{-- {{ route('trucks.index') }} --}}" class="block px-3 py-2 rounded-md text-gray-300 hover:bg-gray-700">ট্রাক্স ম্যানেজ করুন</a>
-            <a href="#" class="block px-3 py-2 rounded-md text-gray-300 hover:bg-gray-700">সেটিংস</a>
-        </nav>
-    </x-slot>
 
     {{-- মূল কন্টেন্ট ($slot) --}}
     <!-- Top Statistics -->
@@ -185,6 +176,9 @@
             </div>
         </div>
 
+    {{-- মূল কন্টেন্ট ($slot) --}}
+
+    
     @push('css')
         <!-- Primary Theme CSS (Dashboard-এর বিশেষ স্টাইল) -->
     @endpush
