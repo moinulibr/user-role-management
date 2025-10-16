@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -72,6 +73,7 @@ Route::middleware(['auth', 'permission:users.manage'])->prefix('admin')->name('a
     Route::post('roles/{role}/permissions', [RoleController::class, 'assignPermissions'])
         ->name('roles.assignPermissions')
         ->middleware('permission:roles.assign');
+    Route::get('roles-table', [RoleController::class, 'table'])->name('roles.table');
 
     // ২. User Management
     Route::resource('users', UserController::class);
@@ -93,3 +95,10 @@ Route::get('/dashboard', function () {
 Route::get('/blank-page', function () {
     return view('blank-page');
 })->name('blank');
+
+
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    // সেটিংস পেজ দেখানো (GET) এবং আপডেট করা (POST/PUT)
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+});

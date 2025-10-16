@@ -34,10 +34,10 @@
         <!-- Core & Utility JS -->
 
         <!-- Charting Library (আপনার কোডে spline-area, mixed-chart থাকার জন্য এটি জরুরি) -->
-        <script src="{{asset('assets/admin/plugins/apexcharts/apexcharts.min.js')}}"></script>
+        {{-- <script src="{{asset('assets/admin/plugins/apexcharts/apexcharts.min.js')}}"></script>
 
         <!-- Template Specific JS (যেমন অফক্যানভাস, ড্রপডাউন এবং অন্যান্য UI ফাংশনালিটির জন্য) -->
-        <script src="{{ asset('assets/admin/js/chart.js') }}"></script>
+        <script src="{{ asset('assets/admin/js/chart.js') }}"></script> --}}
     @endpush
     
 </x-admin-layout>

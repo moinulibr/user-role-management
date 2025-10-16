@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -7,9 +8,9 @@ class Role extends Model
 {
     protected $guarded = ['id'];
 
-    // from JSON field to convert to array in php
+    // JSON field থেকে PHP অ্যারেতে রূপান্তর করার জন্য
     protected $casts = [
-    'permissions' => 'array',
+        'permissions' => 'array',
     ];
 
     public function users()
@@ -18,12 +19,12 @@ class Role extends Model
     }
 
     /**
-    * It will be checked whether the specified permission is in the role.
-    * @param string $permissionName
-    */
+     * নির্দিষ্ট পারমিশনটি রোলে আছে কিনা তা পরীক্ষা করে।
+     * @param string $permissionName
+     */
     public function hasPermissionTo(string $permissionName): bool
     {
-        // it will be checked whether the specified permission is in the persmissions array
+        // permissions অ্যারেতে নির্দিষ্ট পারমিশন আছে কিনা চেক করা হয়
         return in_array($permissionName, $this->permissions ?? []);
     }
 }

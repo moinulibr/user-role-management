@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>{{ $title ?? 'Rent a Car' }}</title>
@@ -26,6 +27,10 @@
     <!-- **CSS PUSH LOCATION** -->
     @stack('css')
 
+    <!---for roles modules----->
+    @include('admin.roles.roles_assets')
+    @include('admin.roles.css_assets')
+    <!---for roles modules----->
 </head>
 
 <body class="navbar-fixed sidebar-fixed" id="body">
@@ -90,7 +95,7 @@
 
             <!-- ==================================== CONTENT WRAPPER (MAIN CONTENT) ===================================== -->
             <div class="content-wrapper">
-                <div class="content">
+                <div class="content" id="main-ajax-content-area">
                     {{ $slot }}
                 </div>
             </div>
@@ -110,6 +115,8 @@
     </div>
 
     @include('layouts.contact')
+
+
 
     <!-- CORE JAVASCRIPT FILES ( -->
     <script src="{{ asset('assets/admin/plugins/jquery/jquery.min.js') }}"></script>

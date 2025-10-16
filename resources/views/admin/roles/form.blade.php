@@ -1,69 +1,49 @@
-@extends('admin.roles.base')
-@section('title', $role->exists ? 'Edit Role & Permissions' : 'Create New Role')
+<div>
+    <button class="rms-close-btn" onclick="rmsCloseModal()">X</button>
+    <h3>{{ $role->exists ? 'Edit Role' : 'Create Role' }}</h3>
 
-@section('content')
-
-    @php
-        $rolePermissions = $role->permissions ?? [];
-        $formAction = $role->exists ? route('admin.roles.update', $role) : route('admin.roles.store');
-    @endphp
-
-    <form action="{{ $formAction }}" method="POST">
+    <form id="rms-role-form">
         @csrf
-        @if ($role->exists)
+        @if($role->exists)
             @method('PUT')
         @endif
-        
-        <div class="form-group">
-            <label for="display_name">Role Display Name</label>
-            <input type="text" id="display_name" name="display_name" value="{{ old('display_name', $role->display_name) }}" required class="form-control">
-        </div>
-        
-        <div class="form-group">
-            <label for="name">Role Slug (Unique Name)</label>
-            <input type="text" id="name" name="name" value="{{ old('name', $role->name) }}" class="form-control" placeholder="e.g., content_editor (Leave empty for auto-generation)">
-        </div>
 
-        <h3 style="font-size: 1.2em; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 15px; margin-top: 25px;">Assign Permissions</h3>
+        <label>Display Name</label>
+        <input type="text" name="display_name" value="{{ $role->display_name ?? '' }}" required style="width:100%;margin-bottom:10px;padding:6px">
 
-        <div class="permission-grid">
-            @foreach ($permissions as $module => $actions)
-                <div class="module-card">
-                    <div class="module-title" style="text-transform: capitalize;">
-                        {{ str_replace('_', ' ', $module) }}
-                    </div>
+        <h4>Permissions</h4>
+        @foreach($modules as $module => $perms)
+            <div style="margin-bottom:10px;border:1px solid #ddd;padding:10px;border-radius:6px">
+                <strong>{{ $module }}</strong><br>
+                @foreach($perms as $perm)
+                    <label style="margin-right:10px">
+                        <input type="checkbox" name="permissions[]" value="{{ $perm }}"
+                            {{ in_array($perm, $role->permissions ?? []) ? 'checked' : '' }}>
+                        {{ ucfirst($perm) }}
+                    </label>
+                @endforeach
+            </div>
+        @endforeach
 
-                    <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
-                        @foreach ($actions as $action)
-                            @php
-                                $permissionName = "{$module}.{$action}";
-                                $isChecked = in_array($permissionName, $rolePermissions);
-                            @endphp
-                            
-                            <div style="display: flex; align-items: center;">
-                                <input 
-                                    type="checkbox" 
-                                    name="permissions[]" 
-                                    value="{{ $permissionName }}"
-                                    id="{{ $permissionName }}"
-                                    {{ $isChecked ? 'checked' : '' }}
-                                    style="margin-right: 8px;"
-                                >
-                                <label for="{{ $permissionName }}" style="font-size: 0.9em;">
-                                    {{ str_replace('_', ' ', $action) }}
-                                    <span style="font-size: 0.8em; color: #6c757d;">({{ $permissionName }})</span>
-                                </label>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endforeach
-        </div>
-        
-        <div style="margin-top: 30px;">
-            <button type="submit" class="btn btn-success">
-                {{ $role->exists ? 'Update Role' : 'Create Role' }}
-            </button>
-        </div>
+        <button type="submit" class="rms-btn rms-btn-primary">Save</button>
     </form>
-@endsection
+</div>
+
+<script>
+document.getElementById('rms-role-form').onsubmit = e => {
+    e.preventDefault();
+    const form = e.target;
+    const data = new FormData(form);
+    const method = '{{ $role->exists ? 'PUT' : 'POST' }}';
+    const url = '{{ $role->exists ? route('admin.roles.update', $role) : route('admin.roles.store') }}';
+
+    fetch(url, {method, body:data, headers:{'X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]').content}})
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                rmsCloseModal();
+                rmsReloadTable();
+            }
+        });
+};
+</script>

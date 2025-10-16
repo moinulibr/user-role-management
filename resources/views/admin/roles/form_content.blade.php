@@ -1,4 +1,4 @@
-@php
+{{-- @php
     $rolePermissions = $role->permissions ?? [];
     $formAction = $role->exists ? route('admin.roles.update', $role) : route('admin.roles.store');
 @endphp
@@ -63,5 +63,49 @@
         <button type="submit" class="btn btn-success">
             {{ $role->exists ? 'Update Role' : 'Create Role' }}
         </button>
+    </div>
+</form> --}}
+
+
+
+
+
+<form class="ajaxForm" action="{{ $role->id ? route('admin.roles.update', $role->id) : route('admin.roles.store') }}" method="POST">
+    @csrf
+    @if($role->id)
+        @method('PUT')
+    @endif
+
+    <div class="form-group">
+        <label>Display Name <span class="required">*</span></label>
+        <input type="text" name="display_name" value="{{ old('display_name', $role->display_name) }}" required>
+    </div>
+
+    <div class="form-group">
+        <label>System Name</label>
+        <input type="text" name="name" value="{{ old('name', $role->name) }}">
+    </div>
+
+    <div class="form-group">
+        <label>Permissions</label>
+        <div class="permission-grid">
+            @foreach($permissions as $module => $perms)
+                <div class="module">
+                    <strong>{{ ucfirst($module) }}</strong>
+                    @foreach($perms as $perm)
+                        <label class="perm">
+                            <input type="checkbox" name="permissions[]" value="{{ $perm }}"
+                                {{ in_array($perm, $role->permissions ?? []) ? 'checked' : '' }}>
+                            {{ ucfirst(str_replace('_', ' ', $perm)) }}
+                        </label>
+                    @endforeach
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn primary">Save</button>
+        <button type="button" id="closeModal" class="btn">Cancel</button>
     </div>
 </form>
