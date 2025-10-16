@@ -92,11 +92,9 @@ class RoleController extends Controller
         $form_content_view = view('admin.roles.form_content', compact('permissions', 'role'));
 
         if ($request->ajax()) {
-            // AJAX অনুরোধের জন্য শুধু ফর্ম কন্টেন্ট রিটার্ন করা হলো
             return $form_content_view;
         }
 
-        // সাধারণ GET অনুরোধের জন্য ফুল পেজ ভিউ
         return view('admin.roles.form', compact('permissions', 'role'));
     }
 
