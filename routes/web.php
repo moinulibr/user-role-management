@@ -96,9 +96,15 @@ Route::get('/blank-page', function () {
     return view('blank-page');
 })->name('blank');
 
+Route::get('/roleslist', function () {
+    return view('admin.roles.rolelist');
+});
+Route::get('/rolesedit', function () {
+    return view('admin.roles.roleedit');
+});
 
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    // সেটিংস পেজ দেখানো (GET) এবং আপডেট করা (POST/PUT)
+
+Route::middleware(['auth', 'permission:settings.manage'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::post('/settings', [SettingController::class, 'update'])->name('settings.update')->middleware('permission:settings.update');
 });

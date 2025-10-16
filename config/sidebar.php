@@ -59,4 +59,10 @@ return [
         'icon' => 'mdi mdi-settings',
         'permission' => 'roles.manage',
     ],
+    [
+        'title' => 'Settings',
+        'route' => 'admin.settings.index',
+        'icon' => 'mdi mdi-settings',
+        'permission' => 'settings.manage',
+    ],
 ];
