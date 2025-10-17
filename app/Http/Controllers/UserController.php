@@ -8,9 +8,19 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use App\Services\FileUploader;
 
 class UserController extends Controller
 {
+
+    protected FileUploader $uploader;
+
+    public function __construct(FileUploader $uploader)
+    {
+        // Dependency Injection এর মাধ্যমে FileUploader-কে ইনজেক্ট করা
+        $this->uploader = $uploader;
+    }
+
     /**
      * Display a listing of the users (List).
      */
@@ -46,7 +56,14 @@ class UserController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['exists:roles,id'],
+            //'profile_image' => 'nullable|image|max:2048',
         ]);
+
+        $filePath = null;
+        // 1. ফাইল আপলোড লজিক
+        if ($request->hasFile('profile_image')) {
+            $filePath = $this->uploader->upload($request->file('profile_image'), 'users');
+        }
 
         // নতুন ইউজার তৈরি
         $user = User::create([
@@ -54,6 +71,7 @@ class UserController extends Controller
             'email' => $validated['email'],
             'mobile' => $validated['mobile'] ?? null,
             // মডেল-এ cast: 'password' => 'hashed', থাকায় এখানে Hash::make() প্রয়োজন নেই, তবে রাখলে ক্ষতি নেই।
+            //'profile_image_path' => $filePath,
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -99,6 +117,9 @@ class UserController extends Controller
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['exists:roles,id'],
+
+            //'profile_image' => 'nullable|image|max:2048',
+            //'remove_image' => 'nullable|boolean',
         ]);
 
         $data = [
@@ -110,6 +131,19 @@ class UserController extends Controller
         // যদি পাসওয়ার্ড ফিল্ডে কিছু লেখা থাকে, তবেই পাসওয়ার্ড আপডেট করা হবে
         if ($request->filled('password')) {
             $data['password'] = $validated['password'];
+        }
+
+        // 1. নতুন ফাইল আপলোড ও পুরাতন ফাইল ডিলিট লজিক
+        if ($request->hasFile('profile_image')) {
+            // পুরাতন ইমেজ ডিলিট করা
+            $this->uploader->delete($user->profile_image_path);
+
+            // নতুন ইমেজ আপলোড করা
+            $data['profile_image_path'] = $this->uploader->upload($request->file('profile_image'), 'users');
+        } elseif ($request->boolean('remove_image')) {
+            // যদি remove_image চেকবক্স চেক করা থাকে এবং নতুন কোনো ইমেজ আপলোড না হয়
+            $this->uploader->delete($user->profile_image_path);
+            $data['profile_image_path'] = null;
         }
 
         $user->update($data);
@@ -125,6 +159,10 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        //if ($user->profile_image_path) {
+           // $this->uploader->delete($user->profile_image_path);
+        //}
+
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
@@ -157,3 +195,21 @@ class UserController extends Controller
     }
    
 }
+
+
+
+//use this in blade file
+/* @if ($user->profile_image_path)
+    {{-- সরাসরি অ্যাট্রিবিউট ব্যবহার করুন --}}
+    <img src="{{ $user->profile_image_path }}" alt="Profile Image" class="rounded-circle" width="100">
+@else
+    {{-- ডিফল্ট ইমেজ --}}
+    <img src="{{ asset('images/default-profile.png') }}" alt="Default Image" class="rounded-circle" width="100">
+@endif 
+
+
+Symlink তৈরি: প্রজেক্ট রুট ফোল্ডারে এই কমান্ডটি অবশ্যই একবার চালাতে হবে:
+Bash
+php artisan storage:link
+কলামের নাম: আপনার ডেটাবেসে যেন profile_image_path নামে একটি কলাম থাকে, তা নিশ্চিত করুন।
+*/
