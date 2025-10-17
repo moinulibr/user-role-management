@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class UserController extends Controller
     {
         // রোল এবং পারমিশন সহ ইউজারদের তালিকা
         $users = User::with('roles')->latest()->paginate(10);
+        //return UserResource::collection($users);
         return view('admin.users.index', compact('users'));
     }
 
@@ -66,7 +68,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        // Roles সহ ইউজার ডেটা ভিউ পেজে পাঠানো হলো
+        //return new UserResource($user);
         return view('admin.users.show', compact('user'));
     }
 
