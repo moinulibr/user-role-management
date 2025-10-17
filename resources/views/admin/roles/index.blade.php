@@ -752,12 +752,12 @@
         </table>
 
         <!-- Pagination Links (if using Role::paginate() in controller) -->
-        <div class="curpm-pagination">
-            {{-- {{ $roles->links() }} --}}
+        {{-- <div class="curpm-pagination">
+            {{ $roles->links() }}
             <a href="#" class="curpm-pagination-link">&laquo; Previous</a>
             <a href="#" class="curpm-pagination-link active">1</a>
             <a href="#" class="curpm-pagination-link">Next &raquo;</a>
-        </div>
+        </div> --}}
     </div>
     
     <script>

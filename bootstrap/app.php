@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Providers\AuthServiceProvider;
 use App\Providers\AppServiceProvider;
+use App\Providers\TestServiceProvider;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
     AuthServiceProvider::class,
     AppServiceProvider::class,
+    TestServiceProvider::class
 ])
 
     ->withMiddleware(function (Middleware $middleware): void {
