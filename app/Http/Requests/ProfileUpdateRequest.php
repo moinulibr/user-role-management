@@ -17,6 +17,10 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            // নতুন ফাইল আপলোডের ভ্যালিডেশন
+            'profile_picture' => ['nullable', 'image', 'max:2048'],
+            // ছবি মুছে ফেলার চেকবক্সের ভ্যালিডেশন
+            'remove_profile_picture' => ['nullable', 'boolean'],
             'email' => [
                 'required',
                 'string',

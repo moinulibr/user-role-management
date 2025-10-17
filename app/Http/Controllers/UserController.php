@@ -56,13 +56,13 @@ class UserController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['exists:roles,id'],
-            //'profile_image' => 'nullable|image|max:2048',
+            //'profile_picture' => 'nullable|image|max:2048',
         ]);
 
         $filePath = null;
         // 1. ফাইল আপলোড লজিক
-        if ($request->hasFile('profile_image')) {
-            $filePath = $this->uploader->upload($request->file('profile_image'), 'users');
+        if ($request->hasFile('profile_picture')) {
+            $filePath = $this->uploader->upload($request->file('profile_picture'), 'users');
         }
 
         // নতুন ইউজার তৈরি
@@ -71,7 +71,7 @@ class UserController extends Controller
             'email' => $validated['email'],
             'mobile' => $validated['mobile'] ?? null,
             // মডেল-এ cast: 'password' => 'hashed', থাকায় এখানে Hash::make() প্রয়োজন নেই, তবে রাখলে ক্ষতি নেই।
-            //'profile_image_path' => $filePath,
+            //'profile_picture' => $filePath,
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -118,7 +118,7 @@ class UserController extends Controller
             'roles' => ['nullable', 'array'],
             'roles.*' => ['exists:roles,id'],
 
-            //'profile_image' => 'nullable|image|max:2048',
+            'profile_picture' => 'nullable|image|max:2048',
             //'remove_image' => 'nullable|boolean',
         ]);
 
@@ -134,16 +134,16 @@ class UserController extends Controller
         }
 
         // 1. নতুন ফাইল আপলোড ও পুরাতন ফাইল ডিলিট লজিক
-        if ($request->hasFile('profile_image')) {
+        if ($request->hasFile('profile_picture')) {
             // পুরাতন ইমেজ ডিলিট করা
-            $this->uploader->delete($user->profile_image_path);
+            $this->uploader->delete($user->profile_picture);
 
             // নতুন ইমেজ আপলোড করা
-            $data['profile_image_path'] = $this->uploader->upload($request->file('profile_image'), 'users');
+            $data['profile_picture'] = $this->uploader->upload($request->file('profile_picture'), 'users');
         } elseif ($request->boolean('remove_image')) {
             // যদি remove_image চেকবক্স চেক করা থাকে এবং নতুন কোনো ইমেজ আপলোড না হয়
-            $this->uploader->delete($user->profile_image_path);
-            $data['profile_image_path'] = null;
+            $this->uploader->delete($user->profile_picture);
+            $data['profile_picture'] = null;
         }
 
         $user->update($data);

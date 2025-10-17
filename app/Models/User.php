@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -30,6 +31,7 @@ class User extends Authenticatable
         'provider_id',
         'provider',
         'password',
+        'profile_picture'
     ];
 
     /**
@@ -57,26 +59,32 @@ class User extends Authenticatable
 
 
     /**
-     * profile_image_path অ্যাট্রিবিউটের জন্য Accessor ডিফাইন করা।
+     * profile_picture অ্যাট্রিবিউটের জন্য Accessor ডিফাইন করা।
      *
-     * এটি ডেটাবেস থেকে যখনই profile_image_path অ্যাক্সেস করা হবে, তখনই তা 
+     * এটি ডেটাবেস থেকে যখনই profile_picture অ্যাক্সেস করা হবে, তখনই তা 
      * সম্পূর্ণ URL-এ রূপান্তর করে দেবে।
      * * Laravel 9+ এর জন্য:
      */
-    protected function profileImagePath(): Attribute
+    protected function profilePicture(): Attribute
     {
         return Attribute::make(
             get: function (?string $value) {
-                // যদি কোনো পাথ সেভ করা না থাকে বা ফাইলটি Google/Facebook থেকে আসে
+                // ১. যদি কোনো পাথ সেভ করা না থাকে বা ফাইলটি Google/Facebook থেকে আসে
                 if (!$value || Str::startsWith($value, ['http', 'https'])) {
-                    // যদি URL হয়, তবে সরাসরি URL রিটার্ন করবে
+                    // URL হলে সরাসরি URL রিটার্ন করবে
                     return $value;
                 }
 
-                // আপেক্ষিক পাথকে সম্পূর্ণ পাবলিক URL-এ রূপান্তর
-                return Storage::disk('public')->url($value);
+                // ২. আপেক্ষিক পাথকে সম্পূর্ণ পাবলিক URL-এ রূপান্তর
+                $url = Storage::disk('public')->url($value);
+
+                // *** সমস্যার সমাধান: ডাবল স্ল্যাশ রিমুভ করা হচ্ছে ***
+                // নিশ্চিত করা হচ্ছে যে http://example.com//storage এর মতো ডাবল স্ল্যাশ যেন না থাকে।
+                $cleanedUrl = Str::replaceFirst('//storage', '/storage', $url);
+
+                return $cleanedUrl;
             },
-            // Mutator দরকার নেই, কারণ Controller-এ আমরা ফাইল আপলোডার ব্যবহার করে সেভ করব।
+            // Mutator দরকার নেই
         );
     }
 }
