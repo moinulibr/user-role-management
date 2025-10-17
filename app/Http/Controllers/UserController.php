@@ -136,10 +136,7 @@ class UserController extends Controller
     public function assignRoleForm(User $user)
     {
         $roles = Role::all();
-        // User এর বর্তমান রোল ID গুলি একটি অ্যারেতে নেওয়া
         $userRoleIds = $user->roles->pluck('id')->toArray();
-
-        // admin.users.assign-roles.blade.php ভিউ-এ পাঠানো হলো
         return view('admin.users.assign-roles', compact('user', 'roles', 'userRoleIds'));
     }
 
