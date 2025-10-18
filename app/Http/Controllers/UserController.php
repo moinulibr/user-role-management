@@ -59,9 +59,11 @@ class UserController extends Controller
             //'profile_picture' => 'nullable|image|max:2048',
         ]);
 
+        $fileData = $request->get('profile_image_base64')
+            ?? $request->file('profile_image');
         $filePath = null;
         // 1. ফাইল আপলোড লজিক
-        if ($request->hasFile('profile_picture')) {
+        if ($fileData) {
             $filePath = $this->uploader->upload($request->file('profile_picture'), 'users');
         }
 

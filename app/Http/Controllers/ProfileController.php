@@ -54,6 +54,8 @@ class ProfileController extends Controller
         // চেক করা হচ্ছে যে বর্তমান পাথটি লোকাল স্টোরেজের পাথ নাকি কোনো এক্সটার্নাল URL
         $isLocalPath = $rawProfilePath && !Str::startsWith($rawProfilePath, ['http', 'https']);
 
+        $fileData = $request->get('profile_image_base64')
+            ?? $request->file('profile_image');
         if ($request->hasFile('profile_picture')) {
             // A. নতুন ইমেজ আপলোড: পুরানোটি ডিলিট করে নতুনটি আপলোড
 
