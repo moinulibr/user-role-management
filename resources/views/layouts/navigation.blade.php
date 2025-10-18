@@ -141,7 +141,9 @@
     <li class="dropdown user-menu">
         <!-- Bootstrap JS লোড হওয়া আবশ্যক -->
         <button class="dropdown-toggle nav-link" data-toggle="dropdown">
-            <img src="{{ asset('assets/admin/images/user/user-xs-01.jpg') }}" class="user-image rounded-circle" alt="User Image" />
+            <img src="{{ auth()->user()->profile_picture
+                            ? auth()->user()->profile_picture
+                            : asset('assets/admin/images/user/user-xs-01.jpg') }}" class="user-image rounded-circle" alt="User Image" />
             <span class="d-none d-lg-inline-block">{{ Auth::user()->name }}</span>
         </button>
         <ul class="dropdown-menu dropdown-menu-right">

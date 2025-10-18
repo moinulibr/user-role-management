@@ -22,7 +22,7 @@
                         <!-- Current Picture Display: $user->profile_picture ব্যবহার করা হয়েছে, যা Accessor-এর মাধ্যমে URL দেবে -->
                         <img src="{{ $user->profile_picture
                             ? $user->profile_picture
-                            : 'https://placehold.co/100x100/185adb/FFFFFF?text=' . strtoupper(substr($user->name, 0, 1)) }}" 
+                            : asset('assets/admin/images/user/user-xs-01.jpg') }}" 
                              alt="Current Profile Picture" 
                              class="rounded-circle" 
                              style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #eee; box-shadow: 0 0 5px rgba(0,0,0,0.1);">
@@ -38,7 +38,7 @@
                             </div>
 
                             <!-- Remove Picture Option (Conditional) -->
-                            @if ($user->profile_picture)
+                            {{-- @if ($user->profile_picture)
                             <div class="form-check">
                                 <!-- চেকবক্সের নাম: 'remove_profile_picture' -->
                                 <input class="form-check-input" type="checkbox" name="remove_profile_picture" value="1" id="removePictureCheck">
@@ -46,7 +46,7 @@
                                     Remove Current Picture
                                 </label>
                             </div>
-                            @endif
+                            @endif --}}
                         </div>
                     </div>
                 </div>

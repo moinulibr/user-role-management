@@ -5,7 +5,9 @@
 
 <div class="card-body card-profile-body">
     <div class="profile-avata">
-        <img class="rounded-circle" src="https://placehold.co/100x100/FFB74D/FFFFFF?text=A" alt="Avata Image">
+        <img class="rounded-circle" src="{{ auth()->user()->profile_picture
+                            ? auth()->user()->profile_picture
+                            : asset('assets/admin/images/user/user-xs-01.jpg') }}" alt="Avata Image">
         <a class="h5 d-block mt-3 mb-2" href="#">{{ $user->name }}</a>
         <a class="d-block text-color" href="#">{{ $user->email }}</a>
     </div>
