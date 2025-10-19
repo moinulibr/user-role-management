@@ -7,12 +7,9 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 
 class RouteServiceProvider extends ServiceProvider
 {
-    // ... (অন্যান্য কোড, যেমন: HOME প্রপার্টি) ...
 
     public function boot(): void
     {
-        // Alias রেজিস্ট্রেশনের লজিকটি এখান থেকে সরিয়ে দিন
-        // শুধু ডিফল্ট রুট কনফিগারেশন রাখুন:
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')
