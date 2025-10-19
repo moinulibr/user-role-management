@@ -78,13 +78,13 @@ class User extends Authenticatable
                 // ২. আপেক্ষিক পাথকে সম্পূর্ণ পাবলিক URL-এ রূপান্তর
                 $url = Storage::disk('public')->url($value);
 
-                // *** সমস্যার সমাধান: ডাবল স্ল্যাশ রিমুভ করা হচ্ছে ***
+                // *** It's removing to duble slass ***
                 // নিশ্চিত করা হচ্ছে যে http://example.com//storage এর মতো ডাবল স্ল্যাশ যেন না থাকে।
                 $cleanedUrl = Str::replaceFirst('//storage', '/storage', $url);
 
                 return $cleanedUrl;
             },
-            // Mutator দরকার নেই
+            // No need to Mutator
         );
     }
 }
