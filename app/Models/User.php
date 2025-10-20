@@ -59,27 +59,26 @@ class User extends Authenticatable
 
 
     /**
-     * profile_picture অ্যাট্রিবিউটের জন্য Accessor ডিফাইন করা।
-     *
-     * এটি ডেটাবেস থেকে যখনই profile_picture অ্যাক্সেস করা হবে, তখনই তা 
-     * সম্পূর্ণ URL-এ রূপান্তর করে দেবে।
-     * * Laravel 9+ এর জন্য:
+     * Accessor define for profile_picture attribute.
+     * 
+     * when access profile_picture from database, then 
+     * it will be converted to public URL
+     * * Laravel 9+:
      */
     protected function profilePicture(): Attribute
     {
         return Attribute::make(
             get: function (?string $value) {
-                // ১. যদি কোনো পাথ সেভ করা না থাকে বা ফাইলটি Google/Facebook থেকে আসে
+                //1. if There is no path stored in the database or the file comes from Google/Facebook
                 if (!$value || Str::startsWith($value, ['http', 'https'])) {
-                    // URL হলে সরাসরি URL রিটার্ন করবে
+                    // If it's a public URL, then just return it url
                     return $value;
                 }
 
-                // ২. আপেক্ষিক পাথকে সম্পূর্ণ পাবলিক URL-এ রূপান্তর
+                //2. Convert the path to public URL
                 $url = Storage::disk('public')->url($value);
 
-                // *** It's removing to duble slass ***
-                // নিশ্চিত করা হচ্ছে যে http://example.com//storage এর মতো ডাবল স্ল্যাশ যেন না থাকে।
+                // It's removing to duble slass
                 $cleanedUrl = Str::replaceFirst('//storage', '/storage', $url);
 
                 return $cleanedUrl;

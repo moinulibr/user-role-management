@@ -8,7 +8,7 @@ class Role extends Model
 {
     protected $guarded = ['id'];
 
-    // JSON field থেকে PHP অ্যারেতে রূপান্তর করার জন্য
+    //convert to array from json field
     protected $casts = [
         'permissions' => 'array',
     ];
@@ -19,12 +19,12 @@ class Role extends Model
     }
 
     /**
-     * নির্দিষ্ট পারমিশনটি রোলে আছে কিনা তা পরীক্ষা করে।
+     * the permission is existing in the role
      * @param string $permissionName
      */
     public function hasPermissionTo(string $permissionName): bool
     {
-        // permissions অ্যারেতে নির্দিষ্ট পারমিশন আছে কিনা চেক করা হয়
+        // the permission is existing in the permissions
         return in_array($permissionName, $this->permissions ?? []);
     }
 }

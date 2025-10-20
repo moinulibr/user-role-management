@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            // সেটিংস কী (যেমন: app_name, app_logo, app_email)
+            // setting key (like: app_name, app_logo, app_email)
             $table->string('key')->unique();
-            // সেটিংস মান (যেমন: My Awesome App, logo.png, info@app.com)
+            // setting value (like: My Awesome App, logo.png, info@app.com)
             $table->text('value')->nullable();
             $table->timestamps();
         });
