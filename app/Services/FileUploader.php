@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class FileUploader
 {
@@ -12,7 +12,7 @@ class FileUploader
     protected string $rootFolder = 'uploads';
 
     /**
-     * ডিস্ক সেট করুন (যেমন 's3' বা 'public').
+     * set disk here like s3 or public
      */
     public function setDisk(string $disk): self
     {
@@ -21,30 +21,28 @@ class FileUploader
     }
 
     /**
-     * 🚀 প্রধান আপলোড মেথড: UploadedFile বা Base64 স্ট্রিং উভয়ই হ্যান্ডেল করে।
-     * * @param mixed $fileData UploadedFile ইনস্ট্যান্স, অথবা Base64 স্ট্রিং।
-     * @param string $folder সাব-ফোল্ডারের নাম (যেমন 'users' বা 'products')
-     * @return string|null সেভ করা ফাইলের আপেক্ষিক পাথ
+     * main upload method : handle both uploaded file and base64 string
+     * * @param mixed $fileData UploadedFile instance, or Base64 string
+     * @param string $folder name of the sub-folder (like 'users' or 'products')
+     * @return string|null the actual path of the saved file
      */
     public function upload($fileData, string $folder): ?string
     {
         if ($fileData instanceof UploadedFile) {
-            // যদি এটি একটি সাধারণ ফাইল আপলোড হয়
+            // if the input is an uploaded file [generally from a form]
             return $this->uploadFromFile($fileData, $folder);
         } elseif (is_string($fileData) && Str::startsWith($fileData, 'data:')) {
-            // যদি এটি একটি Base64 ডেটা স্ট্রিং হয়
+            // if the input is a Base64 string
             return $this->uploadFromBase64($fileData, $folder);
         }
-
-        // অন্য কোনো ইনপুট হলে (যেমন null বা ভুল ফরম্যাট)
+        // otherwise
         return null;
     }
 
 
-    // --- প্রাইভেট আপলোড মেথড ---
 
     /**
-     * প্রাইভেট মেথড: UploadedFile ইনস্ট্যান্স সেভ করে।
+     * private method: UploadedFile save instance।
      */
     private function uploadFromFile(UploadedFile $file, string $folder): ?string
     {
@@ -64,11 +62,11 @@ class FileUploader
     }
 
     /**
-     * প্রাইভেট মেথড: Base64 ডেটা সেভ করে।
+     * private method: it's stores file from Base64 ।
      */
     private function uploadFromBase64(string $base64Data, string $folder): ?string
     {
-        // Base64 স্ট্রিং থেকে ফাইল টাইপ বের করা
+        // getting file type from Base64 string
         if (!preg_match('/^data:(\w+)\/(\w+);base64,/', $base64Data, $type)) {
             return null;
         }
@@ -81,7 +79,7 @@ class FileUploader
         $path = $this->rootFolder . '/' . trim($folder, '/') . '/' . $fileName;
 
         try {
-            // বাইনারি ডেটা সরাসরি ডিস্কে সেভ করা
+            // directly save binary data in disk
             Storage::disk($this->disk)->put($path, $fileBinary);
             return $path;
         } catch (\Exception $e) {
@@ -90,10 +88,9 @@ class FileUploader
         }
     }
 
-    // --- ডিলিট মেথড (অপরিবর্তিত) ---
 
     /**
-     * একটি ফাইল ডিলিট করুন।
+     * file delete
      */
     public function delete(?string $filePath): bool
     {

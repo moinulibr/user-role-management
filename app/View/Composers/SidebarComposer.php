@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 class SidebarComposer
 {
     /**
-     * মেনু ডেটা লোড এবং ব্যবহারকারীর পারমিশন অনুযায়ী ফিল্টার করে।
+     * Load menu data and filter based on user's permissions.
      * @param  \Illuminate\View\View  $view
      * @return void
      */
@@ -16,13 +16,13 @@ class SidebarComposer
     {
         $user = Auth::user();
 
-        // ১. যদি ইউজার অথেন্টিকেটেড না থাকে, খালি মেনু পাস করুন
+        // 1. If the user is not authenticated, return an empty menu
         if (!$user) {
             $view->with('menuItems', []);
             return;
         }
 
-        // config('sidebar') ফাইল থেকে ডেটা লোড করুন
+        // config('sidebar') data load from config
         $menuConfig = config('sidebar');
         $filteredMenu = [];
 
@@ -30,16 +30,16 @@ class SidebarComposer
             $mainPermission = $item['permission'] ?? null;
             $canSeeMainItem = true;
 
-            // প্রধান আইটেমের পারমিশন চেক করুন
+            // check main permission exists
             if ($mainPermission && !$user->can($mainPermission)) {
                 $canSeeMainItem = false;
             }
 
-            // ২. সাবমেনু হ্যান্ডেল করুন
+            //2. handle submenu
             if (isset($item['submenu'])) {
                 $filteredSubmenu = [];
 
-                // সাবমেনুর প্রতিটি আইটেম ফিল্টার করুন
+                //filter every submenu
                 foreach ($item['submenu'] as $subItem) {
                     $subPermission = $subItem['permission'] ?? null;
 
@@ -50,14 +50,14 @@ class SidebarComposer
 
                 $item['submenu'] = $filteredSubmenu;
 
-                // যদি সাবমেনুতে অন্তত একটি আইটেম থাকে, তবে প্রধান মেনুটি দেখান
+                // if there is only one item in the submenu, show the main menu
                 if (!empty($item['submenu'])) {
                     $filteredMenu[] = $item;
-                    continue; // পরের আইটেমে যান
+                    continue; // Go to the next iteration
                 }
             }
 
-            // ৩. যদি সিঙ্গেল আইটেম হয় এবং পারমিশন থাকে, তবে যোগ করুন
+            //3. if single item exists and permission exists, then added 
             if ($canSeeMainItem && !isset($item['submenu'])) {
                 $filteredMenu[] = $item;
             }
