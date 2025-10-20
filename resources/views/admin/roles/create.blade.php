@@ -1060,7 +1060,7 @@
             <p>Define the name and assign granular permissions for this role.</p>
         </header>
 
-        {{-- ফর্ম সাবমিশন --}}
+        {{-- for submit --}}
         <form id="curpm-role-form" action="{{ $formAction }}" method="POST">
             @csrf
             @if ($role->exists)
