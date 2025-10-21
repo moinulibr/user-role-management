@@ -28,7 +28,6 @@
     @stack('css')
 
     <!---for roles modules----->
-    @include('admin.roles.roles_assets')
     @include('admin.roles.css_assets')
     <!---for roles modules----->
 </head>

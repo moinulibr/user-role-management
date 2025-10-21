@@ -1,7 +1,7 @@
 {{-- 
     Blade Component (x-navigation)
-    এই কম্পোনেন্টটি টপ নেভিগেশন বার কন্টেন্ট রেন্ডার করে।
-    এটি resources/views/components/navigation.blade.php ফাইলে সংরক্ষণ করতে হবে।
+    This component renders the top navigation bar content.
+    It's defined in resources/views/components/navigation.blade.php
 --}}
 <!-- search form -->
 <div class="search-form">
