@@ -33,12 +33,12 @@
         NProgress.start();
     </script>
 
-    <!-- মূল HTML-এর Wrapper ক্লাসগুলি (টেমপ্লেট অনুযায়ী) -->
+    <!-- main- html wrapper classes (template provided)-->
     <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh">
         <div class="d-flex flex-column justify-content-between">
             <div class="row justify-content-center">
                 <div class="col-lg-6 col-md-10">
-                    <!-- কন্টেন্ট স্লট (Login, Sign Up ফর্ম এখানে লোড হবে) -->
+                    <!-- Login and Sign Up Form will be loaded here -->
                     {{ $slot }}
                 </div>
             </div>
