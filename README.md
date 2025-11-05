@@ -275,7 +275,7 @@ Route::middleware(['auth', 'permission:users.manage'])
 ##  Author
 
 **Developed by:** Moinul Islam
-**GitHub:** [github.com/yourusername](#)
+**GitHub:** [github.com/moinulibr](#)
 **License:** MIT
 
 ---
