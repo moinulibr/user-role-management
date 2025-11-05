@@ -1,174 +1,287 @@
+---
 
+##  **Summary: Custom Role-Permission System Overview**
 
-````markdown
-# 🧩 Custom User Role Management Setup Guide (Laravel)
+### 🔹 1. **System Type**
 
-এই গাইডটি অনুসরণ করে কোনো **third-party package** ব্যবহার না করে তৈরি করা **custom role এবং permission management module** আপনার Laravel প্রজেক্টে ইন্টিগ্রেট করুন।
+এটি একটি **single-tenant, single-user-role** ভিত্তিক system।
+প্রত্যেক `User` এর একটি নির্দিষ্ট `role_id` থাকে, যা তার access control নির্ধারণ করে।
 
 ---
 
-## ⚙️ ১. ফাইল কপি (File Copying)
+### 🔹 2. **Key Components**
 
-নিম্নলিখিত ফাইল ও ফোল্ডারগুলো তাদের নির্দিষ্ট পাথে কপি করুন:
-
-| উৎস ফাইল/ফোল্ডার | গন্তব্য পাথ |
-|------------------|-------------|
-| `app/Models/Role.php` | `app/Models/Role.php` |
-| `app/Traits/HasRolesAndPermissions.php` | `app/Traits/HasRolesAndPermissions.php` |
-| `app/Http/Controllers/RoleController.php` | `app/Http/Controllers/RoleController.php` |
-| `app/Http/Controllers/UserController.php` | `app/Http/Controllers/UserController.php` |
-| `database/migrations/*_role_user_role_tables.php` | `database/migrations/` |
-| `resources/views/admin/roles/` | `resources/views/admin/roles/` |
-| `resources/views/admin/users/` | `resources/views/admin/users/` |
+| Component                                                | Description                                                                                |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| **RoleController**                                       | Role create, edit, update, delete & permission assign করে।                                 |
+| **AuthorizePermission Middleware**                       | নির্দিষ্ট permission ছাড়া কোনো route access করতে দেয় না।                                   |
+| **AuthServiceProvider (Gates)**                          | প্রতিটি permission এর জন্য dynamic Gate তৈরি করে।                                          |
+| **HasCustomPermissions Trait**                           | User model-এ permission checking logic define করা আছে (যেমন `hasPermission($permission)`)। |
+| **Config Files (`app_permissions.php` & `sidebar.php`)** | সব permission এবং sidebar menu config আকারে সংরক্ষিত।                                      |
+| **SidebarComposer**                                      | Sidebar menu load করার সময় শুধুমাত্র permitted item দেখায়।                                 |
 
 ---
 
-## 🧾 ২. কনফিগারেশন ফাইল তৈরি (Create `config/app_permissions.php`)
+### 🔹 3. **Permission Configuration**
 
-`config/app_permissions.php` নামে একটি নতুন ফাইল তৈরি করে নিচের কোডটি পেস্ট করুন:
+**config/app_permissions.php**
 
 ```php
-<?php
-
-return [
-    'permissions' => [
-        // ড্যাশবোর্ড
-        'dashboard.view',
-
-        // ইউজার ম্যানেজমেন্ট
-        'users.view',
-        'users.create',
-        'users.edit',
-        'users.delete',
-        'users.assign_role',
-
-        // রোল ম্যানেজমেন্ট
-        'roles.view',
-        'roles.create',
-        'roles.edit',
-        'roles.delete',
-        'roles.assign_permissions',
-    ],
-];
-````
-
----
-
-## 🧠 ৩. কোড ইন্টিগ্রেশন (Code Integration)
-
-### A. `app/Models/User.php` এ Trait যোগ করুন
-
-```php
-use App\Traits\HasRolesAndPermissions; // <--- এই লাইনটি যোগ করুন
-
-class User extends Authenticatable
-{
-    use HasFactory, Notifiable, HasRolesAndPermissions; // <--- এখানে Trait যোগ করুন
-}
+'modules' => [
+    'users' => ['manage', 'assign'],
+    'roles' => ['manage', 'assign'],
+    'settings' => ['manage', 'view', 'update'],
+]
 ```
 
+>  এতে প্রতিটি module এবং তার অনুমোদিত action define করা হয়।
+> যেমন `users.manage` বা `settings.update`।
+
 ---
 
-### B. `app/Providers/AuthServiceProvider.php` এ Blade Directives যোগ করুন
+### 🔹 4. **Dynamic Gate Registration**
+
+`AuthServiceProvider` automatically সব permission এর জন্য Gate create করে:
 
 ```php
-use Illuminate\Support\Facades\Blade;
-
-public function boot()
-{
-    $this->registerPolicies();
-
-    // কাস্টম Blade Directives
-    Blade::if('role', function ($role) {
-        return auth()->check() && auth()->user()->hasRole($role);
-    });
-
-    Blade::if('can', function ($permission) {
-        return auth()->check() && auth()->user()->can($permission);
-    });
-}
+Gate::define('users.manage', fn(User $user) => $user->hasPermission('users.manage'));
 ```
 
+তাই `@can('users.manage')` বা `Gate::allows('users.manage')` — দুটোই কাজ করবে।
+
 ---
 
-### C. `routes/web.php` এ রুট যোগ করুন
+### 🔹 5. **Permission Middleware**
+
+`AuthorizePermission` middleware route level এ permission enforce করে:
 
 ```php
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\UserController;
-
-Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function () {
-    
-    // রোল ম্যানেজমেন্ট
-    Route::resource('roles', RoleController::class)->except(['show']);
-    Route::post('roles/{role}/sync-permissions', [RoleController::class, 'syncPermissions'])
-        ->name('roles.sync-permissions');
-
-    // ইউজার ম্যানেজমেন্ট
+Route::middleware(['auth', 'permission:users.manage'])->group(function () {
     Route::resource('users', UserController::class);
 });
 ```
 
+> Unauthorized হলে AJAX request এ JSON 403 দেয়,
+> আর সাধারণ request হলে redirect করে dashboard এ error সহ।
+
 ---
 
-### D. `resources/views/layouts/app.blade.php` এ AJAX ইন্টিগ্রেট করুন
+### 🔹 6. **Sidebar Composer**
 
-**`<head>` ট্যাগের মধ্যে:**
+`SidebarComposer` automatically sidebar menu filter করে শুধুমাত্র যেসব item user দেখতে পারে সেগুলো দেখায়।
 
-```blade
-@include('admin.roles.modal_styles')
+```php
+View::composer('layouts.sidebar', SidebarComposer::class);
 ```
 
-**`</body>` ট্যাগের ঠিক আগে:**
+Menu config (`config/sidebar.php`) থেকে permission check করে item filter হয়।
 
-```blade
-@include('admin.roles.modal_scripts')
+---
 
-<script>
-    // AJAX Content Area কে টার্গেট করে attachAllListeners ফাংশন কল করুন
-    const mainContentArea = document.getElementById('main-ajax-content-area');
-    
-    // নেভিগেশন লিঙ্কগুলিতে content-load-link ক্লাস যুক্ত করা
-    document.querySelectorAll('nav a').forEach(link => {
-        if (link.href.includes('/admin/')) { 
-            link.classList.add('content-load-link');
-        }
+### 🔹 7. **Roles & Users**
+
+* প্রতিটি `Role` এর একটি `permissions` ফিল্ড আছে (JSON আকারে সংরক্ষিত)।
+* User এর সাথে `role_id` সংযুক্ত থাকে।
+* Trait (`HasCustomPermissions`) এর মাধ্যমে `user->hasPermission('users.manage')` চেক করা হয়।
+
+---
+
+### 🔹 8. **Routes Example**
+
+```php
+Route::middleware(['auth', 'permission:users.manage'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('roles', RoleController::class);
+        Route::resource('users', UserController::class);
+        Route::get('users/{user}/roles/assign', [UserController::class, 'assignRoleForm'])
+            ->name('users.assignRoleForm')
+            ->middleware('permission:users.assign');
     });
-    
-    if (typeof attachAllListeners === 'function' && mainContentArea) {
-        attachAllListeners(mainContentArea);
+```
+
+---
+
+##  **README.md**
+
+তুমি নিচেরটা সরাসরি GitHub-এ `README.md` হিসেবে রাখতে পারো 👇
+
+---
+
+#  Laravel Custom Role & Permission System
+
+A simple **custom role & permission management** built on top of Laravel Gates & Middleware.
+This system provides **single-tenant user-role management** with dynamic sidebar filtering and permission-based route control.
+
+---
+
+## Features
+
+✅ Role CRUD (create, update, delete, view)
+✅ Dynamic Permission system from config file
+✅ Middleware-based access control
+✅ Role-wise permission assignment
+✅ Sidebar auto-filter based on user permissions
+✅ Simple and extendable architecture
+
+---
+
+##  Folder Structure Overview
+
+```
+app/
+ ├── Http/
+ │   ├── Controllers/
+ │   │   └── RoleController.php
+ │   ├── Middleware/
+ │   │   └── AuthorizePermission.php
+ │   ├── Providers/
+ │   │   ├── AppServiceProvider.php
+ │   │   └── AuthServiceProvider.php
+ │   └── View/
+ │       └── Composers/
+ │           └── SidebarComposer.php
+ ├── Models/
+ │   └── User.php
+ └── Traits/
+     └── HasCustomPermissions.php
+```
+
+---
+
+## ⚙️ Configuration
+
+### 1️⃣ Define Permissions
+
+**config/app_permissions.php**
+
+```php
+return [
+    'modules' => [
+        'users' => ['manage', 'assign'],
+        'roles' => ['manage', 'assign'],
+        'settings' => ['manage', 'view', 'update'],
+    ],
+];
+```
+
+### 2️⃣ Define Sidebar Menu
+
+**config/sidebar.php**
+
+```php
+return [
+    ['title' => 'Users', 'route' => 'admin.users.index', 'icon' => 'mdi mdi-account-group', 'permission' => 'users.manage'],
+    ['title' => 'Roles', 'route' => 'admin.roles.index', 'icon' => 'mdi mdi-shield-account', 'permission' => 'roles.manage'],
+    ['title' => 'Settings', 'route' => 'admin.settings.index', 'icon' => 'mdi mdi-settings', 'permission' => 'settings.manage'],
+];
+```
+
+---
+
+##  Middleware Setup
+
+**app/Http/Middleware/AuthorizePermission.php**
+
+```php
+if (Gate::denies($permission)) {
+    return $request->expectsJson()
+        ? response()->json(['message' => 'Access Denied', 'permission' => $permission], 403)
+        : redirect()->route('dashboard')->with('error', "Access Denied: {$permission}");
+}
+```
+
+And register alias in `AppServiceProvider`:
+
+```php
+$router->aliasMiddleware('permission', AuthorizePermission::class);
+```
+
+---
+
+##  Dynamic Gates
+
+In `AuthServiceProvider`:
+
+```php
+foreach (config('app_permissions.modules', []) as $module => $actions) {
+    foreach ($actions as $action) {
+        Gate::define("$module.$action", fn(User $user) => $user->hasPermission("$module.$action"));
     }
-</script>
+}
 ```
 
 ---
 
-## 🧩 ৪. কমান্ড চালান (Run Commands)
+##  Sidebar Filter
 
-সব ফাইল কপি ও কোড ইন্টিগ্রেট করার পর টার্মিনালে নিচের কমান্ডগুলো চালান:
+`App\View\Composers\SidebarComposer` dynamically hides unauthorized menu items.
 
-```bash
-# ডাটাবেস টেবিল তৈরি করুন
-php artisan migrate
-
-# কনফিগারেশন ক্যাশে পরিষ্কার করুন
-php artisan config:clear
+```php
+View::composer('layouts.sidebar', SidebarComposer::class);
 ```
 
 ---
 
-## ✅ কাজ শেষ!
+##  Example Route Usage
 
-এখন আপনার **Custom Role & Permission Management Module** সম্পূর্ণভাবে সেটআপ হয়ে গেছে এবং ব্যবহার উপযোগী। 🎉
+```php
+Route::middleware(['auth', 'permission:users.manage'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('users', UserController::class);
+        Route::resource('roles', RoleController::class);
+    });
+```
 
 ---
 
+## ✅ Role Table Structure (Example)
 
-### ✨ Developer Note
+| Column       | Type   | Description         |
+| ------------ | ------ | ------------------- |
+| id           | int    | Primary key         |
+| name         | string | Role identifier     |
+| display_name | string | Human readable name |
+| permissions  | json   | List of permissions |
 
-এই মডিউলটি Laravel-এর নেটিভ পদ্ধতি ব্যবহার করে তৈরি, যেখানে কোনো external package (যেমন Spatie Permission) ব্যবহার করা হয়নি।
-এটি সম্পূর্ণভাবে lightweight, extendable, এবং production-ready।
+---
 
-```
+##  How It Works
+
+1. Permissions are defined in config (`app_permissions.php`).
+2. `AuthServiceProvider` registers Gates for each permission.
+3. Middleware (`permission`) checks if user has permission for route.
+4. SidebarComposer filters visible menu items.
+5. Roles store their assigned permissions in JSON.
+6. User model uses `HasCustomPermissions` trait to validate access.
+
+---
+
+##  Extend / Customize
+
+* Add new module permission → `config/app_permissions.php`
+* Add new menu item → `config/sidebar.php`
+* Attach permissions to roles via RoleController UI
+* Assign role to user (UserController → `assignRoles`)
+
+---
+
+##  Requirements
+
+* Laravel 10+
+* Auth scaffolding enabled
+* `roles` table with `permissions` (JSON) field
+* `users` table with `role_id` foreign key
+
+---
+
+##  Author
+
+**Developed by:** Moinul Islam
+**GitHub:** [github.com/yourusername](#)
+**License:** MIT
 
 ---
